@@ -4,7 +4,7 @@
   "buildCommand": "npm run build",
   "installCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install",
   "env": {
-    "BETTER_AUTH_URL": "https://myai.vercel.app",
+    "BETTER_AUTH_URL": "https://myai-yasar9.vercel.app",
     "VITE_AUTH_ENABLED": "true"
   }
 }
