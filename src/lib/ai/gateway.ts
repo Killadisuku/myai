@@ -1,6 +1,6 @@
 import { humanizeGatewayError, parseGatewayErrorBody } from "./errors";
 
-export type GatewayKind = "experiential" | "xai";
+export type GatewayKind = "experiential" | "xai" | "vercel";
 
 export type GatewayConfig = {
   kind: GatewayKind;
@@ -12,6 +12,7 @@ export type GatewayConfig = {
 const EXPLABS_BASE = "https://api.experientiallabs.ai/v1";
 const EXPLABS_CATALOG = "https://api.experientiallabs.ai/api/models";
 const XAI_BASE = "https://api.x.ai/v1";
+const VERCEL_AI_BASE = "https://ai-gateway.vercel.sh/v1";
 
 export function resolveGateway(): GatewayConfig | null {
   const explabs = process.env.EXPLABS_API_KEY?.trim();
@@ -23,13 +24,25 @@ export function resolveGateway(): GatewayConfig | null {
       label: "Experiential Labs",
     };
   }
-  const xai = process.env.XAI_API_KEY?.trim();
+  const xai =
+    process.env.XAI_API_KEY?.trim() ||
+    process.env.GROK_API_KEY?.trim() ||
+    process.env.XAI_KEY?.trim();
   if (xai) {
     return {
       kind: "xai",
       baseUrl: XAI_BASE,
       apiKey: xai,
       label: "xAI",
+    };
+  }
+  const vercelAi = process.env.AI_GATEWAY_API_KEY?.trim();
+  if (vercelAi) {
+    return {
+      kind: "vercel",
+      baseUrl: VERCEL_AI_BASE,
+      apiKey: vercelAi,
+      label: "Vercel AI Gateway",
     };
   }
   return null;
