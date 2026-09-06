@@ -1,7 +1,32 @@
 import { pendingMigrations } from "../../scripts/migration-plan.mjs";
+import { createHash } from "node:crypto";
 
 /** Which database backend is active. */
 export type DbSource = "neon" | "pglite";
+
+/**
+ * Neon on Vercel sometimes injects POSTGRES_URL instead of DATABASE_URL.
+ * Alias it before this module (and Better Auth, which imports us) read env.
+ * When no BETTER_AUTH_SECRET is set, derive a stable one so serverless
+ * instances sign sessions the same way.
+ */
+function aliasDeployEnv() {
+  if (typeof process === "undefined" || typeof window !== "undefined") return;
+  const url =
+    process.env.DATABASE_URL?.trim() ||
+    process.env.POSTGRES_URL?.trim() ||
+    process.env.POSTGRES_PRISMA_URL?.trim() ||
+    process.env.DATABASE_URL_UNPOOLED?.trim();
+  if (url && !process.env.DATABASE_URL?.trim()) {
+    process.env.DATABASE_URL = url;
+  }
+  if (url && !process.env.BETTER_AUTH_SECRET?.trim()) {
+    process.env.BETTER_AUTH_SECRET = createHash("sha256")
+      .update(`myai.better-auth:${url}`)
+      .digest("hex");
+  }
+}
+aliasDeployEnv();
 
 // An empty/whitespace DATABASE_URL (an easy misconfig in deploy UIs) must mean
 // "unset" — otherwise production would silently run on the PGLite fallback.
@@ -33,7 +58,7 @@ export interface Sql {
   ): Promise<T[]>;
   query<T = Record<string, unknown>>(
     text: string,
-    params?: unknown[],
+    params?: unknown[]
   ): Promise<T[]>;
 }
 

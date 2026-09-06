@@ -65,11 +65,19 @@ export function LoginScreen() {
         </div>
         {needsSetup && (
           <div className="mb-4 rounded-[20px] border border-border bg-secondary/60 px-4 py-3 text-sm text-muted-foreground">
-            This Vercel deploy still needs a database and an AI key before accounts
-            and chats will stick. Add <span className="text-foreground">DATABASE_URL</span>,{" "}
-            <span className="text-foreground">BETTER_AUTH_SECRET</span>, and{" "}
-            <span className="text-foreground">XAI_API_KEY</span> in the project settings,
-            then redeploy.
+            {!status?.database ? (
+              <>
+                Accounts need a connected Neon database. Open Storage, connect
+                Neon to this project, then redeploy.
+              </>
+            ) : (
+              <>
+                Sign-in is ready. Chat still needs an AI key — add{" "}
+                <span className="text-foreground">XAI_API_KEY</span> (or{" "}
+                <span className="text-foreground">EXPLABS_API_KEY</span>) in
+                Environment Variables, then redeploy.
+              </>
+            )}
           </div>
         )}
         <div className="rounded-[28px] border border-border bg-card p-6 shadow-[var(--shadow)]">
