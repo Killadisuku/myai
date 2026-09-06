@@ -5,6 +5,7 @@ import {
   getFreeModelSlugs,
   readGatewayError,
   resolveGateway,
+  gatewayKeyHint,
 } from "./gateway";
 import type { ModelInfo } from "@/lib/chat/types";
 
@@ -239,7 +240,7 @@ async function fetchLiveModels() {
       models: fallback,
       gateway: null,
       defaultModel: getDefaultModelSlug() || fallback[0]?.slug || "",
-      error: "AI is not available. Set EXPLABS_API_KEY on the server.",
+      error: gatewayKeyHint() || "AI is not available. Set XAI_API_KEY on the server.",
     };
   }
 

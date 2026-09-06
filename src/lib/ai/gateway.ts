@@ -14,8 +14,22 @@ const EXPLABS_CATALOG = "https://api.experientiallabs.ai/api/models";
 const XAI_BASE = "https://api.x.ai/v1";
 const VERCEL_AI_BASE = "https://ai-gateway.vercel.sh/v1";
 
+function looksLikeShellSnippet(value: string) {
+  return /curl\s|authorization\s*:|content-type\s*:|https?:\/\/|\$[A-Z_][A-Z0-9_]*|\n|\r/.test(
+    value,
+  );
+}
+
+function cleanApiKey(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  let value = raw.trim().replace(/^["']+|["']+$/g, "").trim();
+  value = value.replace(/^Bearer\s+/i, "").trim();
+  if (!value || looksLikeShellSnippet(value) || /\s/.test(value)) return undefined;
+  return value;
+}
+
 export function resolveGateway(): GatewayConfig | null {
-  const explabs = process.env.EXPLABS_API_KEY?.trim();
+  const explabs = cleanApiKey(process.env.EXPLABS_API_KEY);
   if (explabs) {
     return {
       kind: "experiential",
@@ -24,10 +38,9 @@ export function resolveGateway(): GatewayConfig | null {
       label: "Experiential Labs",
     };
   }
-  const xai =
-    process.env.XAI_API_KEY?.trim() ||
-    process.env.GROK_API_KEY?.trim() ||
-    process.env.XAI_KEY?.trim();
+  const xai = cleanApiKey(
+    process.env.XAI_API_KEY || process.env.GROK_API_KEY || process.env.XAI_KEY,
+  );
   if (xai) {
     return {
       kind: "xai",
@@ -36,7 +49,7 @@ export function resolveGateway(): GatewayConfig | null {
       label: "xAI",
     };
   }
-  const vercelAi = process.env.AI_GATEWAY_API_KEY?.trim();
+  const vercelAi = cleanApiKey(process.env.AI_GATEWAY_API_KEY);
   if (vercelAi) {
     return {
       kind: "vercel",
@@ -46,6 +59,18 @@ export function resolveGateway(): GatewayConfig | null {
     };
   }
   return null;
+}
+
+export function gatewayKeyHint(): string | null {
+  const raw =
+    process.env.EXPLABS_API_KEY ||
+    process.env.XAI_API_KEY ||
+    process.env.GROK_API_KEY ||
+    process.env.XAI_KEY ||
+    process.env.AI_GATEWAY_API_KEY;
+  if (!raw?.trim()) return null;
+  if (cleanApiKey(raw)) return null;
+  return "The AI key looks like a pasted curl command. In Vercel Environment Variables, set XAI_API_KEY to only the secret from console.x.ai (it starts with xai-), then redeploy.";
 }
 
 export function getAdminSystemPrompt() {

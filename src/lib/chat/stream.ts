@@ -1,6 +1,7 @@
 import { userFromRequest } from "./request-user";
 import {
   getAdminSystemPrompt,
+  gatewayKeyHint,
   readGatewayError,
   resolveGateway,
 } from "@/lib/ai/gateway";
@@ -70,7 +71,7 @@ export async function handleChatRequest(request: Request): Promise<Response> {
   const gateway = resolveGateway();
   if (!gateway) {
     return Response.json(
-      { error: "AI is not available. Set EXPLABS_API_KEY on the server." },
+      { error: gatewayKeyHint() || "AI is not available. Set XAI_API_KEY on the server." },
       { status: 503 },
     );
   }
