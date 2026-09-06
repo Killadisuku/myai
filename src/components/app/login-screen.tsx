@@ -1,10 +1,12 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogoMark, LogoWord } from "@/components/app/logo";
+
+type DeployStatus = { ready: boolean; database: boolean; ai: boolean };
 
 export function LoginScreen() {
   const [mode, setMode] = useState<"in" | "up">("in");
@@ -13,6 +15,21 @@ export function LoginScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [onVercel, setOnVercel] = useState(false);
+  const [status, setStatus] = useState<DeployStatus | null>(null);
+
+  useEffect(() => {
+    setOnVercel(/\.(vercel\.app)$/i.test(window.location.hostname));
+    void fetch("/api/status")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: DeployStatus | null) => {
+        if (data && typeof data.database === "boolean") setStatus(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const needsSetup = Boolean(onVercel && status && (!status.database || !status.ai));
+  const showOauth = !onVercel;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -46,34 +63,51 @@ export function LoginScreen() {
             <p className="text-sm text-muted-foreground">Your AI. Your terms.</p>
           </div>
         </div>
+        {needsSetup && (
+          <div className="mb-4 rounded-[20px] border border-border bg-secondary/60 px-4 py-3 text-sm text-muted-foreground">
+            This Vercel deploy still needs a database and an AI key before accounts
+            and chats will stick. Add <span className="text-foreground">DATABASE_URL</span>,{" "}
+            <span className="text-foreground">BETTER_AUTH_SECRET</span>, and{" "}
+            <span className="text-foreground">XAI_API_KEY</span> in the project settings,
+            then redeploy.
+          </div>
+        )}
         <div className="rounded-[28px] border border-border bg-card p-6 shadow-[var(--shadow)]">
           <h1 className="text-xl font-semibold tracking-tight">
             {mode === "in" ? "Sign in" : "Create your account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "in" ? "Welcome back." : "Email and a password, or continue with Google."}
+            {mode === "in"
+              ? "Welcome back."
+              : showOauth
+                ? "Email and a password, or continue with Google."
+                : "Email and a password."}
           </p>
           {authEnabled ? (
             <>
-              <div className="mt-5 grid gap-2">
-                {GROK_PROVIDERS.map((p) => (
-                  <Button
-                    key={p.providerId}
-                    type="button"
-                    variant="outline"
-                    className="h-11 w-full"
-                    onClick={() => void signIn(p.providerId, { callbackURL: "/" })}
-                  >
-                    Continue with {p.label}
-                  </Button>
-                ))}
-              </div>
-              <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
-                <span className="h-px flex-1 bg-border" />
-                or
-                <span className="h-px flex-1 bg-border" />
-              </div>
-              <form onSubmit={(e) => void onSubmit(e)} className="space-y-3">
+              {showOauth && (
+                <>
+                  <div className="mt-5 grid gap-2">
+                    {GROK_PROVIDERS.map((p) => (
+                      <Button
+                        key={p.providerId}
+                        type="button"
+                        variant="outline"
+                        className="h-11 w-full"
+                        onClick={() => void signIn(p.providerId, { callbackURL: "/" })}
+                      >
+                        Continue with {p.label}
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
+                    <span className="h-px flex-1 bg-border" />
+                    or
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                </>
+              )}
+              <form onSubmit={(e) => void onSubmit(e)} className={`space-y-3 ${showOauth ? "" : "mt-5"}`}>
                 {mode === "up" && (
                   <div className="space-y-1.5">
                     <Label htmlFor="name">Name</Label>

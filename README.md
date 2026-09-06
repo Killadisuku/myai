@@ -4,15 +4,14 @@ Your AI. Your terms. A personal AI workspace with chats, custom assistants, mode
 
 Live: https://myai-yasar9.vercel.app
 
-## Vercel environment
+## Finish the Vercel setup
 
-Set these in the Vercel project (Production + Preview). Do not commit them.
+The site is deployed. Accounts, saved chats, and AI replies need three project env vars. Add them for **Production** and **Preview**, then Redeploy.
 
-| Variable | Purpose |
-| --- | --- |
-| `DATABASE_URL` | Neon Postgres connection string |
-| `BETTER_AUTH_SECRET` | Session signing secret (`openssl rand -hex 32`) |
-| `BETTER_AUTH_URL` | `https://myai-yasar9.vercel.app` (also in `vercel.json`) |
-| `XAI_API_KEY` | xAI API key for chat (or `EXPLABS_API_KEY`) |
+1. **Database** — [Storage](https://vercel.com/yasar9/myai/stores) → Create Database → **Neon** (free) → connect to `myai`. This sets `DATABASE_URL`.
+2. **Auth secret** — [Environment Variables](https://vercel.com/yasar9/myai/settings/environment-variables) → add `BETTER_AUTH_SECRET`.
+3. **AI key** — same page → add `XAI_API_KEY` from [console.x.ai](https://console.x.ai) (or `EXPLABS_API_KEY`).
 
-Email and password work once the database and auth secret are set. Google and X need the Grok auth broker and are not wired on a personal Vercel project.
+`BETTER_AUTH_URL` is already set in `vercel.json` to `https://myai-yasar9.vercel.app`.
+
+Email and password work after those three are set. Google and X stay on the Grok auth broker and are not wired on this personal Vercel project.

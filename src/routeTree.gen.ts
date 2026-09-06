@@ -18,6 +18,7 @@ import { Route as AuthedModelsRouteImport } from './routes/_authed/models'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiModelsRouteImport } from './routes/api/models'
+import { Route as ApiStatusRouteImport } from './routes/api/status'
 import { Route as AuthedCIdRouteImport } from './routes/_authed/c.$id'
 import { Route as ApiAttachmentsIdRouteImport } from './routes/api/attachments.$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -66,6 +67,11 @@ const ApiModelsRoute = ApiModelsRouteImport.update({
   path: '/api/models',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStatusRoute = ApiStatusRouteImport.update({
+  id: '/api/status',
+  path: '/api/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedCIdRoute = AuthedCIdRouteImport.update({
   id: '/c/$id',
   path: '/c/$id',
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthedSettingsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/models': typeof ApiModelsRoute
+  '/api/status': typeof ApiStatusRoute
   '/c/$id': typeof AuthedCIdRoute
   '/api/attachments/$id': typeof ApiAttachmentsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthedSettingsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/models': typeof ApiModelsRoute
+  '/api/status': typeof ApiStatusRoute
   '/': typeof AuthedIndexRoute
   '/c/$id': typeof AuthedCIdRoute
   '/api/attachments/$id': typeof ApiAttachmentsIdRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/_authed/settings': typeof AuthedSettingsRoute
   '/api/chat': typeof ApiChatRoute
   '/api/models': typeof ApiModelsRoute
+  '/api/status': typeof ApiStatusRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/c/$id': typeof AuthedCIdRoute
   '/api/attachments/$id': typeof ApiAttachmentsIdRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/api/chat'
     | '/api/models'
+    | '/api/status'
     | '/c/$id'
     | '/api/attachments/$id'
     | '/api/auth/$'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/api/chat'
     | '/api/models'
+    | '/api/status'
     | '/'
     | '/c/$id'
     | '/api/attachments/$id'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/_authed/settings'
     | '/api/chat'
     | '/api/models'
+    | '/api/status'
     | '/_authed/'
     | '/_authed/c/$id'
     | '/api/attachments/$id'
@@ -172,6 +184,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiModelsRoute: typeof ApiModelsRoute
+  ApiStatusRoute: typeof ApiStatusRoute
   ApiAttachmentsIdRoute: typeof ApiAttachmentsIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiModelsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/status': {
+      id: '/api/status'
+      path: '/api/status'
+      fullPath: '/api/status'
+      preLoaderRoute: typeof ApiStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/c/$id': {
       id: '/_authed/c/$id'
       path: '/c/$id'
@@ -290,6 +310,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ApiChatRoute: ApiChatRoute,
   ApiModelsRoute: ApiModelsRoute,
+  ApiStatusRoute: ApiStatusRoute,
   ApiAttachmentsIdRoute: ApiAttachmentsIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
